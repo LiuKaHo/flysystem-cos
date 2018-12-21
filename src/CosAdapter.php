@@ -89,7 +89,14 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
 
     public function getTimestamp($path)
     {
-        // TODO: Implement getTimestamp() method.
+        return $this->getMetadata($path)['LastModified'];
+    }
+
+    public function getMetadata($path)
+    {
+        $param['Bucket'] = $this->getBucket();
+        $param['Key'] = $this->getKey($path);
+        return $this->getClient()->headObject($param)->toArray();
     }
 
     public function applyPathPrefix($path)
@@ -120,11 +127,6 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
     public function deleteDir($dirname)
     {
         // TODO: Implement deleteDir() method.
-    }
-
-    public function getMetadata($path)
-    {
-        // TODO: Implement getMetadata() method.
     }
 
     public function getMimetype($path)
