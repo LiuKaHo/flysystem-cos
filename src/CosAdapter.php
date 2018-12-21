@@ -22,15 +22,37 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
 
     protected $bucket;
 
-    public function __construct(string $region, string $secretId, string $secretKey, string $bucket = '')
+    protected $config;
+
+    protected static $metaOptions = [
+        'CacheControl',
+        'ContentDisposition',
+        'ContentEncoding',
+        'ContentLanguage',
+        'ContentLength',
+        'ContentType',
+        'Expires',
+        'GrantFullControl',
+        'GrantRead',
+        'GrantWrite',
+        'Metadata',
+        'StorageClass'
+    ];
+
+    public function __construct(string $region, string $secretId, string $secretKey, string $bucket = '', string $token = '', array $option = array())
     {
         $this->bucket = $bucket;
         $config['region'] = $region;
         $credentials['secretId'] = $secretId;
         $credentials['secretKey'] = $secretKey;
+        if (!empty($token)){
+            $credentials['token'] = $token;
+        }
         $config['credentials'] = $credentials;
-        $this->cos_client = new Client($config);
+        $this->config = array_merge($config, $option);
     }
+
+
 
     public function setBucket(string $bucket)
     {
@@ -42,14 +64,17 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
         return $this->bucket;
     }
 
-    public function getClient()
+    public function getRegion()
     {
-        return $this->cos_client;
+        return $this->config['region'];
     }
 
-    public function upload()
+    public function getClient()
     {
+        return $this->cos_client ?? new Client($this->config);
     }
+
+
 
     public function read($path)
     {
@@ -68,7 +93,8 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
 
     public function copy($path, $newpath)
     {
-        // TODO: Implement copy() method.
+        $source = $this->getSource($path);
+        return boolval($this->getClient()->Copy($this->getBucket(), $newpath, $source));
     }
 
     public function createDir($dirname, Config $config)
@@ -78,7 +104,11 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
 
     public function delete($path)
     {
-        // TODO: Implement delete() method.
+        $param['Bucket'] = $this->getBucket();
+        $param['Key'] = $path;
+        $this->getClient()->deleteObject($param);
+
+        return !$this->has($path);
     }
 
     public function deleteDir($dirname)
@@ -113,7 +143,7 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
 
     public function has($path)
     {
-        // TODO: Implement has() method.
+        return $this->getClient()->doesObjectExist($this->getBucket(), $path);
     }
 
     public function listContents($directory = '', $recursive = false)
@@ -133,7 +163,10 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
 
     public function rename($path, $newpath)
     {
-        // TODO: Implement rename() method.
+        if($this->copy($path, $newpath)){
+            return $this->delete($path);
+        }
+        return false;
     }
 
     public function setPathPrefix($prefix)
@@ -148,22 +181,31 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
 
     public function update($path, $contents, Config $config)
     {
-        // TODO: Implement update() method.
+        return $this->upload($path, $contents, $config);
     }
 
     public function updateStream($path, $resource, Config $config)
     {
-        // TODO: Implement updateStream() method.
+        return $this->upload($path, $resource, $config);
     }
 
+    /**
+     *
+     * upload the content
+     *
+     * @param string $path
+     * @param string $contents
+     * @param Config $config
+     * @return array|false|\Guzzle\Http\Url|string
+     */
     public function write($path, $contents, Config $config)
     {
-        // TODO: Implement write() method.
+        return $this->upload($path, $contents, $config);
     }
 
     public function writeStream($path, $resource, Config $config)
     {
-        // TODO: Implement writeStream() method.
+        return $this->upload($path, $resource, $config);
     }
 
     /**
@@ -180,5 +222,63 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
     public function setPathSeparator($pathSeparator)
     {
         $this->pathSeparator = $pathSeparator;
+    }
+
+    /**
+     *
+     * get the source
+     *
+     * @param $path
+     * @return string
+     */
+    public function getSource($path) : string
+    {
+        return sprintf("%s.cos.%s.myqcloud.com/%s", $this->getBucket(), $this->getRegion(), $path);
+    }
+
+    /**
+     *
+     * upload the content
+     *
+     *
+     * @param $path
+     * @param $contents
+     * @param Config $config
+     * @return \Guzzle\Http\Url|string
+     */
+
+    protected function upload($path, $contents, Config $config)
+    {
+        $option = $this->getOptionFromConfig($config);
+
+        $this->getClient()->upload(
+            $this->getBucket(),
+            $path,
+            $contents,
+            $option
+        );
+
+        return $this->getClient()->getObjectUrl($this->getBucket(), $path);
+    }
+
+    /**
+     *
+     * get option from config
+     *
+     * @param Config $config
+     *
+     * @return array
+     */
+    protected function getOptionFromConfig(Config $config) : array
+    {
+        $options = array();
+
+        foreach(static::$metaOptions as $key) {
+            if($config->has($key)){
+                $options[$key] = $config->get($key);
+            }
+        }
+
+        return $options;
     }
 }
