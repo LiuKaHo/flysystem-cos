@@ -44,9 +44,6 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
         $config['region'] = $region;
         $credentials['secretId'] = $secretId;
         $credentials['secretKey'] = $secretKey;
-        if(array_key_exists('cdn', $option) && !empty($option['cdn'])) {
-            $this->setPathPrefix($option['cdn']);
-        }
         if (!empty($token)){
             $credentials['token'] = $token;
         }
