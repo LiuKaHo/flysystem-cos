@@ -1,27 +1,25 @@
 <h1 align="center"> flysystem-cos </h1>
 
-<p align="center"> QCloud COS storage.</p>
+<p align="center"> QCloud COS storage Flysystem Adapter</p>
 
 
 ## Installing
 
 ```shell
-$ composer require liukaho/flysystem-cos -vvv
+$ composer require liukaho/flysystem-cos
 ```
 
 ## Usage
+```
+use Liukaho\Flysystem\Cos\CosAdapter;
+use League\Flysystem\Filesystem;
 
-TODO
+$adapter = new CosAdapter('secretId', 'secretKey', 'bucket', 'region');
+$flysystem = new Filesystem($adapter);
+```
+详细请参考 [Flysystem](http://flysystem.thephpleague.com/docs/)
 
 ## Contributing
-
-You can contribute in one of three ways:
-
-1. File bug reports using the [issue tracker](https://github.com/liukaho/flysystem-cos/issues).
-2. Answer questions or fix bugs on the [issue tracker](https://github.com/liukaho/flysystem-cos/issues).
-3. Contribute new features or update the wiki.
-
-_The code contribution process is not very formal. You just need to make sure that you follow the PSR-0, PSR-1, and PSR-2 coding guidelines. Any new code contributions must be accompanied by unit tests where applicable._
 
 ## License
 
