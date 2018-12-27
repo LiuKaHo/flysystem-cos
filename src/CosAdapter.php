@@ -19,8 +19,6 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
 
     protected $cos_client;
 
-    protected $bucket;
-
     protected $config;
 
     protected static $metaOptions = [
@@ -40,7 +38,6 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
 
     public function __construct(string $secretId, string $secretKey, string $bucket, string $region = '', array $option = array())
     {
-        $this->bucket = $bucket;
         $this->config = array_merge(
             compact('region', 'bucket'),[
             'credentials' => compact('secretId', 'secretKey')
@@ -51,12 +48,12 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
 
     public function setBucket(string $bucket)
     {
-        $this->bucket = $bucket;
+        $this->config['bucket'] = $bucket;
     }
 
     public function getBucket() : string
     {
-        return $this->bucket;
+        return $this->config['bucket'];
     }
 
     public function getRegion()
