@@ -38,18 +38,13 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
         'StorageClass'
     ];
 
-    public function __construct(string $secretId, string $secretKey, string $bucket, string $region = '', string $token = '', array $option = array())
+    public function __construct(string $secretId, string $secretKey, string $bucket, string $region = '', array $option = array())
     {
         $this->bucket = $bucket;
-        $config['region'] = $region;
-        $credentials['secretId'] = $secretId;
-        $credentials['secretKey'] = $secretKey;
-        if (!empty($token)){
-            $credentials['token'] = $token;
-        }
-        $config['credentials'] = $credentials;
-        $this->config = array_merge($config, $option);
-
+        $this->config = array_merge(
+            compact('region', 'bucket'),[
+            'credentials' => compact('secretId', 'secretKey')
+            ], $option);
     }
 
 
