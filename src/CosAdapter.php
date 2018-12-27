@@ -9,10 +9,8 @@
 namespace Liukaho\Flysystem\Cos;
 
 use League\Flysystem\Adapter\AbstractAdapter;
-use League\Flysystem\Adapter\CanOverwriteFiles;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
-use League\Flysystem\Util;
 use Qcloud\Cos\Client;
 use Qcloud\Cos\Exception\NoSuchKeyException;
 
