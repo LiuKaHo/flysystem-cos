@@ -40,18 +40,21 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
         'StorageClass'
     ];
 
-    public function __construct(string $region, string $secretId, string $secretKey, string $bucket = '', string $prefix = '', string $token = '', array $option = array())
+    public function __construct(string $secretId, string $secretKey, string $bucket, string $region = '', string $token = '', array $option = array())
     {
         $this->bucket = $bucket;
         $config['region'] = $region;
         $credentials['secretId'] = $secretId;
         $credentials['secretKey'] = $secretKey;
+        if(array_key_exists('cdn', $option) && !empty($option['cdn'])) {
+            $this->setPathPrefix($option['cdn']);
+        }
         if (!empty($token)){
             $credentials['token'] = $token;
         }
         $config['credentials'] = $credentials;
         $this->config = array_merge($config, $option);
-        $this->setPathPrefix($prefix);
+
     }
 
 
@@ -113,10 +116,7 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
         return $this->getClient()->headObject($param)->toArray();
     }
 
-    public function applyPathPrefix($path)
-    {
-        return ltrim(parent::applyPathPrefix($path), '/');
-    }
+
 
     public function copy($path, $newpath)
     {
@@ -167,10 +167,7 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
         return isset($meta['ContentType']) ? $meta['ContentType'] : false;
     }
 
-    public function getPathPrefix()
-    {
-        return parent::getPathPrefix();
-    }
+
 
     public function getSize($path)
     {
@@ -228,10 +225,7 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
         }
     }
 
-    public function removePathPrefix($path)
-    {
-        return parent::removePathPrefix($path);
-    }
+
 
     public function rename($path, $newpath)
     {
@@ -241,11 +235,7 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
         return false;
     }
 
-    public function setPathPrefix($prefix)
-    {
-        $prefix = ltrim($prefix, '/');
-        return parent::setPathPrefix($prefix);
-    }
+
 
     public function setVisibility($path, $visibility)
     {
