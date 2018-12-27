@@ -9,7 +9,6 @@
 namespace Liukaho\Flysystem\Cos\Tests;
 
 
-use League\Flysystem\Config;
 use Liukaho\Flysystem\Cos\CosAdapter;
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
