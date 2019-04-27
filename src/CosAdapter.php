@@ -19,6 +19,8 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
 
     protected $cos_client;
 
+    protected $url;
+
     protected $config;
 
     protected static $metaOptions = [
@@ -36,12 +38,20 @@ class CosAdapter extends AbstractAdapter implements AdapterInterface
         'StorageClass'
     ];
 
-    public function __construct(string $secretId, string $secretKey, string $bucket, string $region = '', array $option = array())
+    public function __construct(string $secretId, string $secretKey, string $bucket, string $region = '', string $url = '', array $option = array())
     {
         $this->config = array_merge(
             compact('region', 'bucket'),[
             'credentials' => compact('secretId', 'secretKey')
             ], $option);
+
+        $this->url = $url;
+    }
+
+
+    public function getUrl(string $path)
+    {
+        return $this->url . '/' . $path;
     }
 
 
